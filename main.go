@@ -19,6 +19,7 @@ func main() {
 			Success: true,
 			Name:    "Hello",
 		}
+		println("Hello naja heroku ja")
 		return c.JSON(http.StatusOK, user)
 	})
 
