@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo"
 )
@@ -9,6 +11,15 @@ import (
 type user struct {
 	Success bool   `json:"success"`
 	Name    string `json:"name"`
+}
+
+func getPort() string {
+	var port = os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+		fmt.Println("No Port In Heroku" + port)
+	}
+	return ":" + port
 }
 
 func main() {
@@ -23,5 +34,5 @@ func main() {
 		return c.JSON(http.StatusOK, user)
 	})
 
-	e.Logger.Fatal(e.Start(":3000"))
+	e.Logger.Fatal(e.Start(getPort()))
 }
