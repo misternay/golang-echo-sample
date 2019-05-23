@@ -7,7 +7,25 @@ import (
 )
 
 func Index(c echo.Context) error {
-	data := []interface{}{1, 2, "ok"}
-	user := map[string]interface{}{"code": true, "data": data}
-	return c.JSON(http.StatusOK, user)
+	type Data struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+
+	type Response struct {
+		Success bool   `json:"success"`
+		Data    *Data  `json:"data,omitempty"`
+		Message string `json:"message,omitempty"`
+	}
+
+	response := Response{
+		Success: true,
+		Data: &Data{
+			Name: "John Due",
+			Age:  18,
+		},
+		// Message: "sdlfj",
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
