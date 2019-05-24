@@ -3,6 +3,8 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/babyjazz/demo/handler"
+
 	"github.com/babyjazz/demo/db"
 	"github.com/babyjazz/demo/models"
 	"github.com/labstack/echo"
@@ -15,12 +17,16 @@ func Login(c echo.Context) (err error) {
 		Message string        `json:"message,omitempty"`
 	}
 
-	type Users struct {
+	type Request struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
+	type Users struct {
+		*models.Users
+		Password string `json:"password"`
+	}
 
-	req := new(Users)
+	req := new(Request)
 	if err = c.Bind(req); err != nil {
 		return
 	}
@@ -28,10 +34,17 @@ func Login(c echo.Context) (err error) {
 	pgdb := db.Connect()
 	defer pgdb.Close()
 
-	userModel := new(models.Users)
+	userModel := new(Users)
 
-	err = pgdb.Model(userModel).Where("username=?", req.Username).Select()
+	err = pgdb.Model(userModel).Where("username=?", req.Username).First()
 	if err != nil {
+		res := &Response{
+			Success: false,
+			Message: "username or password is invalid",
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+	if handler.CheckPasswordHash(req.Password, userModel.Password) == false {
 		res := &Response{
 			Success: false,
 			Message: "username or password is invalid",
@@ -41,7 +54,6 @@ func Login(c echo.Context) (err error) {
 
 	res := Response{
 		Success: true,
-		Data:    userModel,
 	}
 
 	return c.JSON(http.StatusOK, res)

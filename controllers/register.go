@@ -54,10 +54,11 @@ func Register(c echo.Context) (err error) {
 	pgdb := db.Connect()
 	defer pgdb.Close()
 
+	pwdHash, _ := handler.HashPassword(req.Password)
 	userModel := &Users{
 		Fullname: req.Fullname,
 		Username: req.Username,
-		Password: req.Password,
+		Password: pwdHash,
 	}
 
 	created, err := pgdb.Model(userModel).Where("username=?", req.Username).SelectOrInsert()
