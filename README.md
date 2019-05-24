@@ -5,4 +5,9 @@ Example of golang echo (Learning golang)
 using ``` fresh ``` for autoreloa
 
 # Build production
-go build
+``` go build ```
+
+# Run production
+``` export ENV=production ```
+``` ./demo ```
+
