@@ -12,9 +12,9 @@ import (
 
 func Login(c echo.Context) (err error) {
 	type Response struct {
-		Success bool            `json:"success"`
-		Data    *models.Members `json:"data,omitempty"`
-		Message string          `json:"message,omitempty"`
+		Success bool          `json:"success"`
+		Data    *models.Users `json:"data,omitempty"`
+		Message string        `json:"message,omitempty"`
 	}
 
 	type Body struct {
@@ -46,7 +46,7 @@ func Login(c echo.Context) (err error) {
 	pgdb := db.Connect()
 	defer pgdb.Close()
 
-	userModel := new(models.Members)
+	userModel := new(models.Users)
 
 	err = pgdb.Model(userModel).Where("name=?", reqUser.Username).Select()
 	if err != nil {

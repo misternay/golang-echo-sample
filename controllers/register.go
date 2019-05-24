@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/babyjazz/demo/db"
 	"github.com/babyjazz/demo/handler"
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v9"
@@ -15,15 +16,15 @@ func Register(c echo.Context) (err error) {
 			Message string `json:"message,omitempty"`
 		}
 
-		Body struct {
+		Users struct {
 			Username   string `json:"username" validate:"required,min=4,max=32"`
+			Fullname   string `json:"fullname" validate:"required,min=4,max=32"`
 			Password   string `json:"password" validate:"required,min=6,max=32"`
 			Repassword string `json:"repassword" validate:"eqfield=Password"`
-			Fullname   string `json:"fullname" validate:"required,min=4,max=32"`
 		}
 	)
 
-	req := new(Body)
+	req := new(Users)
 	if err = c.Bind(req); err != nil {
 		return
 	}
@@ -42,6 +43,17 @@ func Register(c echo.Context) (err error) {
 			}
 			return c.JSON(http.StatusBadRequest, res)
 		}
+	}
+
+	pgdb := db.Connect()
+	defer pgdb.Close()
+
+	err = pgdb.Insert(req)
+	if err != nil {
+		res := &Response{
+			Success: false,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
 	}
 
 	response := Response{

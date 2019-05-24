@@ -1,8 +1,8 @@
 package models
 
-type Members struct {
-	Id    int
-	Name  string
-	Age   int
-	Email string
+type Users struct {
+	Id       int
+	Username string
+	Fullname string
+	Password string
 }
