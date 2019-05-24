@@ -2,12 +2,10 @@ package controllers
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/babyjazz/demo/db"
 	"github.com/babyjazz/demo/models"
 	"github.com/labstack/echo"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 func Login(c echo.Context) (err error) {
@@ -17,30 +15,14 @@ func Login(c echo.Context) (err error) {
 		Message string        `json:"message,omitempty"`
 	}
 
-	type Body struct {
-		Username string `json:"username" validate:"required,min=4,max=32"`
-		Password string `json:"password" validate:"required,min=6,max=255"`
+	type Users struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
 	}
 
-	reqUser := new(Body)
-
-	if err = c.Bind(reqUser); err != nil {
+	req := new(Users)
+	if err = c.Bind(req); err != nil {
 		return
-	}
-
-	if err = c.Validate(reqUser); err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var fieldError string
-			fieldError = strings.ToLower(err.Field() + "_" + err.ActualTag())
-			if err.Param() != "" {
-				fieldError = fieldError + "_" + err.Param()
-			}
-			res := &Response{
-				Success: false,
-				Message: fieldError,
-			}
-			return c.JSON(http.StatusBadRequest, res)
-		}
 	}
 
 	pgdb := db.Connect()
@@ -48,7 +30,7 @@ func Login(c echo.Context) (err error) {
 
 	userModel := new(models.Users)
 
-	err = pgdb.Model(userModel).Where("name=?", reqUser.Username).Select()
+	err = pgdb.Model(userModel).Where("username=?", req.Username).Select()
 	if err != nil {
 		res := &Response{
 			Success: false,

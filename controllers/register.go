@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/babyjazz/demo/db"
@@ -16,15 +17,20 @@ func Register(c echo.Context) (err error) {
 			Message string `json:"message,omitempty"`
 		}
 
-		Users struct {
+		Request struct {
 			Username   string `json:"username" validate:"required,min=4,max=32"`
 			Fullname   string `json:"fullname" validate:"required,min=4,max=32"`
 			Password   string `json:"password" validate:"required,min=6,max=32"`
 			Repassword string `json:"repassword" validate:"eqfield=Password"`
 		}
+		Users struct {
+			Username string `json:"username"`
+			Fullname string `json:"fullname"`
+			Password string `json:"password"`
+		}
 	)
 
-	req := new(Users)
+	req := new(Request)
 	if err = c.Bind(req); err != nil {
 		return
 	}
@@ -48,12 +54,25 @@ func Register(c echo.Context) (err error) {
 	pgdb := db.Connect()
 	defer pgdb.Close()
 
-	err = pgdb.Insert(req)
+	userModel := &Users{
+		Fullname: req.Fullname,
+		Username: req.Username,
+		Password: req.Password,
+	}
+
+	created, err := pgdb.Model(userModel).Where("username=?", req.Username).SelectOrInsert()
 	if err != nil {
+		fmt.Println(err.Error())
 		res := &Response{
 			Success: false,
 		}
 		return c.JSON(http.StatusUnauthorized, res)
+	} else if created == false {
+		res := &Response{
+			Success: false,
+			Message: "Username is already exist",
+		}
+		return c.JSON(http.StatusConflict, res)
 	}
 
 	response := Response{

@@ -11,10 +11,9 @@ func init() {
 		fmt.Println("creating table users...")
 		_, err := db.Exec(`CREATE TABLE users (
 id SERIAL PRIMARY KEY,
-username character(255) NOT NULL,
-fullname character(255) NOT NULL,
-password character(255) NOT NULL,
-repassword character(255) NOT NULL
+username VARCHAR(255) NOT NULL UNIQUE,
+fullname VARCHAR(255) NOT NULL,
+password VARCHAR(255) NOT NULL
     )`)
 		return err
 	}, func(db migrations.DB) error {
