@@ -33,6 +33,7 @@ func Init() {
 	api := e.Group("/api/v1")
 	api.GET("", controllers.Index)
 	api.POST("/login", controllers.Login)
+	api.POST("/register", controllers.Register)
 
 	e.GET("/*", controllers.Notfound)
 
