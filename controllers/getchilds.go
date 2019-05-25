@@ -10,12 +10,12 @@ import (
 )
 
 type Users struct {
-	Id           int               `json:"id,omitempty"`
-	Username     string            `json:"username,omitempty"`
-	Fullname     string            `json:"fullname,omitempty"`
-	ChildLeftId  int               `json:"child_left_id,omitempty"`
-	ChildRightId int               `json:"child_right_id,omitempty"`
-	Ok           map[string]*Users `json:",omitempty" sql:"-"`
+	Id           int    `json:"id,omitempty"`
+	Username     string `json:"username,omitempty"`
+	Fullname     string `json:"fullname,omitempty"`
+	ChildLeftId  int    `json:"child_left_id,omitempty"`
+	ChildRightId int    `json:"child_right_id,omitempty"`
+	Child        *Users `json:"child,omitempty" sql:"-"`
 }
 
 func GetChilds(c echo.Context) (err error) {
@@ -43,8 +43,7 @@ func GetChilds(c echo.Context) (err error) {
 	if err != nil {
 		fmt.Println("User is not found")
 	}
-	userModel.Ok = make(map[string]*Users)
-	userModel.Ok["child"], err = getChild(req.Username, pgdb)
+	userModel.Child, err = getChild(req.Username, pgdb)
 
 	res := &Response{
 		Success: true,
@@ -67,8 +66,7 @@ func getChild(username string, pgdb *pg.DB) (user *Users, err error) {
 		fmt.Println("User is not found")
 	}
 	if s.ChildLeftId != 0 {
-		s.Ok = make(map[string]*Users)
-		s.Ok["child"], err = getChild(s.Username, pgdb)
+		s.Child, err = getChild(s.Username, pgdb)
 
 	}
 	return s, err
