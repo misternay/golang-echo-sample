@@ -10,12 +10,12 @@ import (
 )
 
 type Users struct {
-	Id           int    `json:"id,omitempty"`
-	Username     string `json:"username,omitempty"`
-	Fullname     string `json:"fullname,omitempty"`
-	ChildLeftId  int    `json:"child_left_id,omitempty"`
-	ChildRightId int    `json:"child_right_id,omitempty"`
-	Child        *Users `json:"child,omitempty" sql:"-"`
+	Id           int      `json:"id,omitempty"`
+	Username     string   `json:"username,omitempty"`
+	Fullname     string   `json:"fullname,omitempty"`
+	ChildLeftId  int      `json:"child_left_id,omitempty"`
+	ChildRightId int      `json:"child_right_id,omitempty"`
+	Child        []*Users `json:"child,omitempty" sql:"-"`
 }
 
 func GetChilds(c echo.Context) (err error) {
@@ -43,7 +43,7 @@ func GetChilds(c echo.Context) (err error) {
 	if err != nil {
 		fmt.Println("User is not found")
 	}
-	userModel.Child, err = getChild(req.Username, pgdb)
+	getChild(req.Username, userModel, pgdb)
 
 	res := &Response{
 		Success: true,
@@ -53,21 +53,21 @@ func GetChilds(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, res)
 }
 
-func getChild(username string, pgdb *pg.DB) (user *Users, err error) {
-	a := new(Users)
-	s := new(Users)
+func getChild(username string, userModal *Users, pgdb *pg.DB) (err error) {
+	childNode := new(Users)
+	childRightNode := new(Users)
 
-	err = pgdb.Model(a).Where("username=?", username).First()
-	if err != nil {
-		fmt.Println("User is not found")
+	err = pgdb.Model(childNode).Where("id=?", userModal.ChildLeftId).First()
+	userModal.Child = append(userModal.Child, childNode)
+	if userModal.Id != 0 {
+		getChild(childNode.Username, childNode, pgdb)
 	}
-	err = pgdb.Model(s).Where("id=?", a.ChildLeftId).First()
-	if err != nil {
-		fmt.Println("User is not found")
-	}
-	if s.ChildLeftId != 0 {
-		s.Child, err = getChild(s.Username, pgdb)
 
+	if userModal.ChildRightId != 0 {
+		err = pgdb.Model(childRightNode).Where("id=?", userModal.ChildRightId).First()
+		userModal.Child = append(userModal.Child, childRightNode)
+		getChild(childRightNode.Username, childRightNode, pgdb)
 	}
-	return s, err
+
+	return nil
 }
