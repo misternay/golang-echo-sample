@@ -54,13 +54,13 @@ func GetChilds(c echo.Context) (err error) {
 }
 
 func getChild(username string, userModal *Users, pgdb *pg.DB) (err error) {
-	childNode := new(Users)
+	childLeftNode := new(Users)
 	childRightNode := new(Users)
 
-	err = pgdb.Model(childNode).Where("id=?", userModal.ChildLeftId).First()
-	userModal.Child = append(userModal.Child, childNode)
-	if userModal.Id != 0 {
-		getChild(childNode.Username, childNode, pgdb)
+	if userModal.ChildLeftId != 0 {
+		err = pgdb.Model(childLeftNode).Where("id=?", userModal.ChildLeftId).First()
+		userModal.Child = append(userModal.Child, childLeftNode)
+		getChild(childLeftNode.Username, childLeftNode, pgdb)
 	}
 
 	if userModal.ChildRightId != 0 {
