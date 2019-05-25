@@ -6,6 +6,7 @@ import (
 
 	"github.com/babyjazz/demo/db"
 	"github.com/babyjazz/demo/handler"
+	"github.com/babyjazz/demo/models"
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -13,8 +14,9 @@ import (
 func RegisterChild(c echo.Context) (err error) {
 	type (
 		Response struct {
-			Success bool   `json:"success"`
-			Message string `json:"message,omitempty"`
+			Success bool          `json:"success"`
+			Message string        `json:"message,omitempty"`
+			Data    *models.Users `json:"data,omitempty"`
 		}
 
 		Request struct {
@@ -55,13 +57,13 @@ func RegisterChild(c echo.Context) (err error) {
 	defer pgdb.Close()
 
 	pwdHash, _ := handler.HashPassword(req.Password)
-	userModel := &Users{
+	user := &Users{
 		Fullname: req.Fullname,
 		Username: req.Username,
 		Password: pwdHash,
 	}
 
-	created, err := pgdb.Model(userModel).Where("username=?", req.Username).SelectOrInsert()
+	created, err := pgdb.Model(user).Where("username=?", req.Username).SelectOrInsert()
 	if err != nil {
 		fmt.Println(err.Error())
 		res := &Response{
@@ -76,8 +78,11 @@ func RegisterChild(c echo.Context) (err error) {
 		return c.JSON(http.StatusConflict, res)
 	}
 
+	userModel := new(models.Users)
+	err = pgdb.Model(userModel).Where("username=?", user.Username).First()
 	response := Response{
 		Success: true,
+		Data:    userModel,
 	}
 
 	return c.JSON(http.StatusOK, response)
