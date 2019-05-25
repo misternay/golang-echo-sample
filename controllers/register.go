@@ -10,7 +10,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func Register(c echo.Context) (err error) {
+func RegisterChild(c echo.Context) (err error) {
 	type (
 		Response struct {
 			Success bool   `json:"success"`

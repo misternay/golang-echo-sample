@@ -33,7 +33,9 @@ func Init() {
 	api := e.Group("/api/v1")
 	api.GET("", controllers.Index)
 	api.POST("/login", controllers.Login)
-	api.POST("/register", controllers.Register)
+	api.POST("/register", controllers.RegisterChild)
+	api.GET("/child", controllers.GetChilds)
+	api.PATCH("/child", controllers.UpdateChild)
 
 	e.GET("/*", controllers.Notfound)
 

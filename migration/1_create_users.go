@@ -13,7 +13,9 @@ func init() {
 id SERIAL PRIMARY KEY,
 username VARCHAR(255) NOT NULL UNIQUE,
 fullname VARCHAR(255) NOT NULL,
-password VARCHAR(255) NOT NULL
+password VARCHAR(255) NOT NULL,
+child_left_id INTEGER UNIQUE,
+child_right_id INTEGER UNIQUE
     )`)
 		return err
 	}, func(db migrations.DB) error {
