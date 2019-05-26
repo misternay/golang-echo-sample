@@ -8,5 +8,6 @@ type Users struct {
 	ChildRightId int      `json:"child_right_id,omitempty"`
 	Direction    string   `json:"direction,omitempty" sql:"-"`
 	Password     string   `json:"-"`
-	Child        []*Users `json:"child,omitempty" sql:"-"`
+	ChildLeft    []*Users `json:"child_left,omitempty" sql:"-"`
+	ChildRight   []*Users `json:"child_right,omitempty" sql:"-"`
 }

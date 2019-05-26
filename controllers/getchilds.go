@@ -46,13 +46,13 @@ func getChild(username string, userModal *models.Users, pgdb *pg.DB) (err error)
 
 	if userModal.ChildLeftId != 0 {
 		err = pgdb.Model(childLeftNode).Where("id=?", userModal.ChildLeftId).First()
-		userModal.Child = append(userModal.Child, childLeftNode)
+		userModal.ChildLeft = append(userModal.ChildLeft, childLeftNode)
 		getChild(childLeftNode.Username, childLeftNode, pgdb)
 	}
 
 	if userModal.ChildRightId != 0 {
 		err = pgdb.Model(childRightNode).Where("id=?", userModal.ChildRightId).First()
-		userModal.Child = append(userModal.Child, childRightNode)
+		userModal.ChildRight = append(userModal.ChildRight, childRightNode)
 		getChild(childRightNode.Username, childRightNode, pgdb)
 	}
 
