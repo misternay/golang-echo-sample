@@ -30,7 +30,8 @@ func GetTeam(c echo.Context) (err error) {
 	if err != nil {
 		fmt.Println("User is not found")
 	}
-	getTeam(&userModel, 0, pgdb)
+	userModel[0].Direction = "left" // Init side with left because tree will always go left first
+	getTeam(&userModel, 0, "left", pgdb)
 
 	res := &Response{
 		Success: true,
@@ -40,7 +41,7 @@ func GetTeam(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, res)
 }
 
-func getTeam(userModal *[]models.Users, root int, pgdb *pg.DB) (err error) {
+func getTeam(userModal *[]models.Users, root int, direction string, pgdb *pg.DB) (err error) {
 	childLeftNode := new(models.Users)
 	childRightNode := new(models.Users)
 	childLeft := (*userModal)[len(*userModal)-1].ChildLeftId
@@ -48,14 +49,24 @@ func getTeam(userModal *[]models.Users, root int, pgdb *pg.DB) (err error) {
 
 	if childLeft != 0 {
 		err = pgdb.Model(childLeftNode).Where("id=?", childLeft).First()
+		childLeftNode.Direction = direction
 		*userModal = append(*userModal, *childLeftNode)
-		getTeam(userModal, root+1, pgdb)
+		getTeam(userModal, root+1, direction, pgdb)
 	}
 
 	if childRight != 0 {
 		err = pgdb.Model(childRightNode).Where("id=?", childRight).First()
+		if root == 0 {
+			childRightNode.Direction = "right"
+		} else {
+			childRightNode.Direction = direction
+		}
 		*userModal = append(*userModal, *childRightNode)
-		getTeam(userModal, root+1, pgdb)
+		if root == 0 {
+			getTeam(userModal, root+1, "right", pgdb)
+		} else {
+			getTeam(userModal, root+1, direction, pgdb)
+		}
 	}
 
 	return nil

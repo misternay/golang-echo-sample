@@ -6,6 +6,7 @@ type Users struct {
 	Fullname     string   `json:"fullname,omitempty"`
 	ChildLeftId  int      `json:"child_left_id,omitempty"`
 	ChildRightId int      `json:"child_right_id,omitempty"`
+	Direction    string   `json:"direction,omitempty" sql:"-"`
 	Password     string   `json:"-"`
 	Child        []*Users `json:"child,omitempty" sql:"-"`
 }
