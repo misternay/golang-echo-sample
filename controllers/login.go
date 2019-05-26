@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/babyjazz/demo/config"
 	"github.com/babyjazz/demo/handler"
 	"github.com/dgrijalva/jwt-go"
 
@@ -63,7 +64,7 @@ func Login(c echo.Context) (err error) {
 	claims["username"] = userModel.Username
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-	accessToken, err := token.SignedString([]byte("04421de2b4435bf3f1d49ed92b78f625a095f0e31635e3c6b47244fac945b1f5"))
+	accessToken, err := token.SignedString([]byte(config.Secret))
 	if err != nil {
 		return err
 	}

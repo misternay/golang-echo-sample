@@ -3,6 +3,7 @@ package routes
 import (
 	"os"
 
+	"github.com/babyjazz/demo/config"
 	"github.com/babyjazz/demo/controllers"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -33,9 +34,12 @@ func Init() {
 	api := e.Group("/api/v1")
 	api.GET("", controllers.Index)
 	api.POST("/login", controllers.Login)
-	api.POST("/register", controllers.RegisterChild)
-	api.GET("/child", controllers.GetChilds)
-	api.PATCH("/child", controllers.UpdateChild)
+
+	auth := e.Group("/api/v1")
+	auth.Use(middleware.JWT([]byte(config.Secret)))
+	auth.POST("/register", controllers.RegisterChild)
+	auth.GET("/child", controllers.GetChilds)
+	auth.PATCH("/child", controllers.UpdateChild)
 
 	e.GET("/*", controllers.Notfound)
 
