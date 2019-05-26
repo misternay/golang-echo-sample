@@ -40,6 +40,7 @@ func Init() {
 	auth.POST("/register", controllers.RegisterChild)
 	auth.GET("/child", controllers.GetChilds)
 	auth.PATCH("/child", controllers.UpdateChild)
+	auth.GET("/team", controllers.GetTeam)
 
 	e.GET("/*", controllers.Notfound)
 

@@ -10,11 +10,6 @@ import (
 )
 
 func UpdateChild(c echo.Context) (err error) {
-	type Response struct {
-		Success bool          `json:"success"`
-		Data    *models.Users `json:"data,omitempty"`
-		Message string        `json:"message,omitempty"`
-	}
 	type Request struct {
 		Username  string `json:"username"`
 		Direction string `json:"direction"`

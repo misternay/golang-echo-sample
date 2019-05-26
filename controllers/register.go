@@ -12,25 +12,12 @@ import (
 )
 
 func RegisterChild(c echo.Context) (err error) {
-	type (
-		Response struct {
-			Success bool          `json:"success"`
-			Message string        `json:"message,omitempty"`
-			Data    *models.Users `json:"data,omitempty"`
-		}
-
-		Request struct {
-			Username   string `json:"username" validate:"required,min=4,max=32"`
-			Fullname   string `json:"fullname" validate:"required,min=4,max=32"`
-			Password   string `json:"password" validate:"required,min=6,max=32"`
-			Repassword string `json:"repassword" validate:"eqfield=Password"`
-		}
-		Users struct {
-			Username string `json:"username"`
-			Fullname string `json:"fullname"`
-			Password string `json:"password"`
-		}
-	)
+	type Request struct {
+		Username   string `json:"username" validate:"required,min=4,max=32"`
+		Fullname   string `json:"fullname" validate:"required,min=4,max=32"`
+		Password   string `json:"password" validate:"required,min=6,max=32"`
+		Repassword string `json:"repassword" validate:"eqfield=Password"`
+	}
 
 	req := new(Request)
 	if err = c.Bind(req); err != nil {
@@ -57,7 +44,7 @@ func RegisterChild(c echo.Context) (err error) {
 	defer pgdb.Close()
 
 	pwdHash, _ := handler.HashPassword(req.Password)
-	user := &Users{
+	user := &models.Users{
 		Fullname: req.Fullname,
 		Username: req.Username,
 		Password: pwdHash,

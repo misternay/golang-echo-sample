@@ -5,27 +5,14 @@ import (
 	"net/http"
 
 	"github.com/babyjazz/demo/db"
+	"github.com/babyjazz/demo/models"
 	"github.com/go-pg/pg"
 	"github.com/labstack/echo"
 )
 
-type Users struct {
-	Id           int      `json:"id,omitempty"`
-	Username     string   `json:"username,omitempty"`
-	Fullname     string   `json:"fullname,omitempty"`
-	ChildLeftId  int      `json:"child_left_id,omitempty"`
-	ChildRightId int      `json:"child_right_id,omitempty"`
-	Child        []*Users `json:"child,omitempty" sql:"-"`
-}
-
 func GetChilds(c echo.Context) (err error) {
 	type Request struct {
 		Username string `json:"username"`
-	}
-	type Response struct {
-		Success bool   `json:"success"`
-		Data    *Users `json:"data,omitempty"`
-		Message string `json:"message,omitempty"`
 	}
 
 	req := new(Request)
@@ -37,7 +24,7 @@ func GetChilds(c echo.Context) (err error) {
 	defer pgdb.Close()
 
 	// Set parent
-	userModel := new(Users)
+	userModel := new(models.Users)
 
 	err = pgdb.Model(userModel).Where("username=?", req.Username).First()
 	if err != nil {
@@ -53,9 +40,9 @@ func GetChilds(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, res)
 }
 
-func getChild(username string, userModal *Users, pgdb *pg.DB) (err error) {
-	childLeftNode := new(Users)
-	childRightNode := new(Users)
+func getChild(username string, userModal *models.Users, pgdb *pg.DB) (err error) {
+	childLeftNode := new(models.Users)
+	childRightNode := new(models.Users)
 
 	if userModal.ChildLeftId != 0 {
 		err = pgdb.Model(childLeftNode).Where("id=?", userModal.ChildLeftId).First()

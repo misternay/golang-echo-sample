@@ -6,30 +6,27 @@ import (
 
 	"github.com/babyjazz/demo/config"
 	"github.com/babyjazz/demo/handler"
+	"github.com/babyjazz/demo/models"
 	"github.com/dgrijalva/jwt-go"
 
 	"github.com/babyjazz/demo/db"
-	"github.com/babyjazz/demo/models"
 	"github.com/labstack/echo"
 )
 
+type (
+	Response struct {
+		Success     bool        `json:"success"`
+		Data        interface{} `json:"data,omitempty"`
+		Message     string      `json:"message,omitempty"`
+		AccessToken string      `json:"accessToken,omitempty"`
+	}
+)
+
 func Login(c echo.Context) (err error) {
-	type (
-		Users struct {
-			*models.Users
-			Password string `json:"-"`
-		}
-		Response struct {
-			Success     bool   `json:"success"`
-			Data        *Users `json:"data,omitempty"`
-			Message     string `json:"message,omitempty"`
-			AccessToken string `json:"accessToken,omitempty"`
-		}
-		Request struct {
-			Username string `json:"username"`
-			Password string `json:"password"`
-		}
-	)
+	type Request struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
 
 	req := new(Request)
 	if err = c.Bind(req); err != nil {
@@ -39,7 +36,7 @@ func Login(c echo.Context) (err error) {
 	pgdb := db.Connect()
 	defer pgdb.Close()
 
-	userModel := new(Users)
+	userModel := new(models.Users)
 
 	err = pgdb.Model(userModel).Where("username=?", req.Username).First()
 	if err != nil {
