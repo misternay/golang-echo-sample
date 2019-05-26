@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/babyjazz/demo/handler"
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/babyjazz/demo/db"
 	"github.com/babyjazz/demo/models"
@@ -11,20 +13,22 @@ import (
 )
 
 func Login(c echo.Context) (err error) {
-	type Response struct {
-		Success bool          `json:"success"`
-		Data    *models.Users `json:"data,omitempty"`
-		Message string        `json:"message,omitempty"`
-	}
-
-	type Request struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	type Users struct {
-		*models.Users
-		Password string `json:"password"`
-	}
+	type (
+		Users struct {
+			*models.Users
+			Password string `json:"-"`
+		}
+		Response struct {
+			Success     bool   `json:"success"`
+			Data        *Users `json:"data,omitempty"`
+			Message     string `json:"message,omitempty"`
+			AccessToken string `json:"accessToken,omitempty"`
+		}
+		Request struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}
+	)
 
 	req := new(Request)
 	if err = c.Bind(req); err != nil {
@@ -52,8 +56,22 @@ func Login(c echo.Context) (err error) {
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
-	res := Response{
-		Success: true,
+	// Create jwt token
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["fullname"] = userModel.Fullname
+	claims["username"] = userModel.Username
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+	accessToken, err := token.SignedString([]byte("04421de2b4435bf3f1d49ed92b78f625a095f0e31635e3c6b47244fac945b1f5"))
+	if err != nil {
+		return err
+	}
+
+	res := &Response{
+		Success:     true,
+		Data:        userModel,
+		AccessToken: accessToken,
 	}
 
 	return c.JSON(http.StatusOK, res)
