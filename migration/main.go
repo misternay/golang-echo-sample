@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/babyjazz/demo/db"
+	"echo-sample/db"
 	"github.com/go-pg/migrations"
 )
 

@@ -2,9 +2,8 @@ package routes
 
 import (
 	"os"
-
-	"github.com/babyjazz/demo/config"
-	"github.com/babyjazz/demo/controllers"
+	"echo-sample/controllers"
+	"echo-sample/config"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/go-playground/validator.v9"

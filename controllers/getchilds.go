@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/babyjazz/demo/db"
-	"github.com/babyjazz/demo/models"
+	"echo-sample/db"
+	"echo-sample/models"
 	"github.com/go-pg/pg"
 	"github.com/labstack/echo"
 )

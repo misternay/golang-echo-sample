@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/babyjazz/demo/db"
-	"github.com/babyjazz/demo/handler"
-	"github.com/babyjazz/demo/models"
+	"echo-sample/db"
+	"echo-sample/handler"
+	"echo-sample/models"
 	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v9"
 )

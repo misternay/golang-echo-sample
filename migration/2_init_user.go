@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/babyjazz/demo/handler"
+	"echo-sample/handler"
 	"github.com/go-pg/migrations"
 )
 

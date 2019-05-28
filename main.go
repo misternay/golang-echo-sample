@@ -1,7 +1,6 @@
 package main
+import "echo-sample/routes"
 
-import "github.com/babyjazz/demo/routes"
-
-func main() {
+func main(){
 	routes.Init()
 }

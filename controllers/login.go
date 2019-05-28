@@ -1,15 +1,13 @@
 package controllers
-
 import (
 	"net/http"
 	"time"
+	"echo-sample/db"
+	"echo-sample/models"
+	"echo-sample/config"
+	"echo-sample/handler"
 
-	"github.com/babyjazz/demo/config"
-	"github.com/babyjazz/demo/handler"
-	"github.com/babyjazz/demo/models"
 	"github.com/dgrijalva/jwt-go"
-
-	"github.com/babyjazz/demo/db"
 	"github.com/labstack/echo"
 )
 
