@@ -72,5 +72,5 @@ func RegisterChild(c echo.Context) (err error) {
 		Data:    userModel,
 	}
 
-	return c.JSON(http.StatusOK, response)
+	return c.JSON(http.StatusCreated, response)
 }
