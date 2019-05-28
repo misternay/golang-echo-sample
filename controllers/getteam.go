@@ -32,29 +32,37 @@ func GetTeam(c echo.Context) (err error) {
 	}
 	userModel[0].Side = "parent" // Init side with left because tree will always go left first
 	root := 0
+	totalRoot := 0
 	userModel[0].Root = &root
-	getTeam(&userModel, 1, "left", pgdb)
+	getTeam(&userModel, 1, "left", &totalRoot, pgdb)
 
 	res := &Response{
 		Success: true,
-		Data:    userModel,
+		Data: map[string]interface{}{
+			"total_root": totalRoot - 1, // Dec bcoz getTeam will go over dest of deepest child
+			"childs":     userModel,
+		},
 	}
 
 	return c.JSON(http.StatusOK, res)
 }
 
-func getTeam(userModal *[]models.Users, root int, direction string, pgdb *pg.DB) (err error) {
+func getTeam(userModal *[]models.Users, root int, direction string, totalRoot *int, pgdb *pg.DB) (err error) {
 	childLeftNode := new(models.Users)
 	childRightNode := new(models.Users)
 	childLeft := (*userModal)[len(*userModal)-1].ChildLeftId
 	childRight := (*userModal)[len(*userModal)-1].ChildRightId
+
+	if root > *totalRoot {
+		*totalRoot = root
+	}
 
 	if childLeft != 0 {
 		err = pgdb.Model(childLeftNode).Where("id=?", childLeft).First()
 		childLeftNode.Side = direction
 		childLeftNode.Root = &root
 		*userModal = append(*userModal, *childLeftNode)
-		getTeam(userModal, root+1, direction, pgdb)
+		getTeam(userModal, root+1, direction, totalRoot, pgdb)
 	}
 
 	if childRight != 0 {
@@ -67,9 +75,9 @@ func getTeam(userModal *[]models.Users, root int, direction string, pgdb *pg.DB)
 		childRightNode.Root = &root
 		*userModal = append(*userModal, *childRightNode)
 		if root == 0 {
-			getTeam(userModal, root+1, "right", pgdb)
+			getTeam(userModal, root+1, "right", totalRoot, pgdb)
 		} else {
-			getTeam(userModal, root+1, direction, pgdb)
+			getTeam(userModal, root+1, direction, totalRoot, pgdb)
 		}
 	}
 

@@ -19,6 +19,7 @@ type (
 		Data        interface{} `json:"data,omitempty"`
 		Message     string      `json:"message,omitempty"`
 		AccessToken string      `json:"accessToken,omitempty"`
+		TotalRoot   *int        `json:"total_root,omitempty" sql:"-"`
 	}
 )
 
