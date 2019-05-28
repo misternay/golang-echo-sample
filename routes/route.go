@@ -30,6 +30,7 @@ func Init() {
 	e := echo.New()
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Validator = &CustomValidator{validator: validator.New()}
+	e.Use(middleware.CORS())
 
 	api := e.Group("/api/v1")
 	api.GET("", controllers.Index)
@@ -39,6 +40,7 @@ func Init() {
 	auth.Use(middleware.JWT([]byte(config.Secret)))
 	auth.POST("/register", controllers.RegisterChild)
 	auth.GET("/child", controllers.GetChilds)
+	auth.GET("/child/:username", controllers.GetChilds)
 	auth.PATCH("/child", controllers.UpdateChild)
 	auth.GET("/team", controllers.GetTeam)
 

@@ -1,23 +1,42 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/babyjazz/demo/db"
+	"github.com/babyjazz/demo/handler"
 	"github.com/babyjazz/demo/models"
 	"github.com/go-pg/pg"
 	"github.com/labstack/echo"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 func GetChilds(c echo.Context) (err error) {
 	type Request struct {
-		Username string `json:"username"`
+		Username string `json:"username" validate:"required"`
 	}
 
-	req := new(Request)
+	req := &Request{
+		Username: c.Param("username"),
+	}
 	if err = c.Bind(req); err != nil {
 		return
+	}
+
+	// Validate request
+	trans := handler.TransValidator()
+	if err = c.Validate(req); err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			errorField, te := trans.T(err.Tag(), err.Field(), err.Param())
+			if te != nil {
+				errorField = "Invalid request"
+			}
+			res := Response{
+				Success: false,
+				Message: errorField,
+			}
+			return c.JSON(http.StatusBadRequest, res)
+		}
 	}
 
 	pgdb := db.Connect()
@@ -28,9 +47,13 @@ func GetChilds(c echo.Context) (err error) {
 
 	err = pgdb.Model(userModel).Where("username=?", req.Username).First()
 	if err != nil {
-		fmt.Println("User is not found")
+		res := &Response{
+			Success: true,
+			Data:    userModel,
+		}
+		return c.JSON(http.StatusNotFound, res)
 	}
-	getChild(req.Username, userModel, pgdb)
+	getChild(userModel, pgdb)
 
 	res := &Response{
 		Success: true,
@@ -40,20 +63,20 @@ func GetChilds(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, res)
 }
 
-func getChild(username string, userModal *models.Users, pgdb *pg.DB) (err error) {
+func getChild(userModal *models.Users, pgdb *pg.DB) (err error) {
 	childLeftNode := new(models.Users)
 	childRightNode := new(models.Users)
 
 	if userModal.ChildLeftId != 0 {
 		err = pgdb.Model(childLeftNode).Where("id=?", userModal.ChildLeftId).First()
-		userModal.ChildLeft = append(userModal.ChildLeft, childLeftNode)
-		getChild(childLeftNode.Username, childLeftNode, pgdb)
+		userModal.ChildLeft = childLeftNode
+		getChild(childLeftNode, pgdb)
 	}
 
 	if userModal.ChildRightId != 0 {
 		err = pgdb.Model(childRightNode).Where("id=?", userModal.ChildRightId).First()
-		userModal.ChildRight = append(userModal.ChildRight, childRightNode)
-		getChild(childRightNode.Username, childRightNode, pgdb)
+		userModal.ChildRight = childRightNode
+		getChild(childRightNode, pgdb)
 	}
 
 	return nil
