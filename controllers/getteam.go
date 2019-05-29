@@ -5,19 +5,39 @@ import (
 	"net/http"
 
 	"github.com/babyjazz/demo/db"
+	"github.com/babyjazz/demo/handler"
 	"github.com/babyjazz/demo/models"
 	"github.com/go-pg/pg"
 	"github.com/labstack/echo"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 func GetTeam(c echo.Context) (err error) {
 	type Request struct {
-		Username string `json:"username"`
+		Username string `json:"username" validate:"required"`
 	}
 
-	req := new(Request)
+	req := &Request{
+		Username: c.Param("username"),
+	}
 	if err = c.Bind(req); err != nil {
 		return
+	}
+
+	// Validate request
+	trans := handler.TransValidator()
+	if err = c.Validate(req); err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			errorField, te := trans.T(err.Tag(), err.Field(), err.Param())
+			if te != nil {
+				errorField = "Invalid request"
+			}
+			res := Response{
+				Success: false,
+				Message: errorField,
+			}
+			return c.JSON(http.StatusBadRequest, res)
+		}
 	}
 
 	pgdb := db.Connect()

@@ -43,6 +43,7 @@ func Init() {
 	auth.GET("/child/:username", controllers.GetChilds)
 	auth.PATCH("/child", controllers.UpdateChild)
 	auth.GET("/team", controllers.GetTeam)
+	auth.GET("/team/:username", controllers.GetTeam)
 
 	e.GET("/*", controllers.Notfound)
 
